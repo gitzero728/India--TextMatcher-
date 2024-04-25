@@ -1,0 +1,89 @@
+TextMatcher(2 part)
+Please spend time to read and understand the question(including the TASK2 listed below).
+You will be judged on overall DSA, code cleanliness and code design.
+
+TASK 1-MATCHING
+Goal is to implement a well designed library for a rule based text matcher that will be used on the server.
+Write code for the library, along with a few test cases. (do not write code for the server).
+
+The typical flow is something like this:
+	1. User A uploads a list of rules.
+	2. User A then uploads a list of texts.
+	3. Output is the matching rule id for each text.
+	4. Step 2&3 happen frequently, step 1 happens less frequently.
+
+A rule consists of logical operations (AND, OR, NGRAM and NOT) on words.
+AND rule - all of the words are expected to be present in the text. Eg. ["AND", "cricket", "stadium"] will expect both "cricket" and "stadium" present in the text.
+OR rule - any one of the words are expected to be present in text. Eg. ["OR", "bcci", "icc", "cricket"] will expect either "bcci", "cricket" or "icc" to be present in the text.
+NGRAM rule - all of the words expected to be present consecutively. Eg. ["NGRAM", "cricket", "australia"] will expect "cricket" and "australia" to be present one after the other.
+NOT rule - the word is expected NOT to be present. Eg. ["NOT", "baseball"] will expect the word "baseball" to not be present in the text - ie. match will be false if baseball is present in the text.
+
+
+Nesting
+-------
+All of the rules can be nested. For example, we can have a rule
+["AND", "apple", ["NOT", ["OR", "fruit", "fruits", "tree"]], "computer"]
+Will be read as "apple" and "computer" should be present and any of "fruit", "fruits", "tree" must not be present.
+An exception is NORAM rules = they will not be nested further. ie. NGRAM rule can be nested inside any rule, but no other rules will be nested inside an NORAM rule.
+
+
+Code Design
+-----------
+Design the library such that this solution can be implemented in a server with multiple users with ease. There can be only one list of rules active per user at a given time.
+
+
+
+Output format
+-------------
+Output will contain the matching rule ids.
+
+
+Example of Input and output:
+----------------------------
+INPUT (rule):
+{
+	"user_id": "User A",
+	"rules": {
+		"apple_rule": ["AND", "apple", ["OR", "computers", "computer"]],
+		"nothing_rule": ["OR", ["NGRAM", "nothing", "phone"], ["NGRAM", "nothing", "ear"]]
+	}
+}
+
+INPUT (text):
+{
+	"user_id": "User A",
+	"text": [
+		"Quarterly results were announced by Apple computers and it had nothing special",
+		"We found nothing wrong with the nothing ear 1",
+		"iPhone from apple computers has had tough competition from nothing phone"
+	]
+}
+
+OUTPUT:
+[
+	{"matching_rule_ids": ["apple_rule"]},
+	{"matching_rule_ids", ["nothing_rule"]},
+	{"matching_rule_ids": ["apple_rule", "nothing_rule"]},
+]
+
+
+
+
+TASK 2-HIGHLIGHTS
+In addition to the matching rules, also display the text highlights using the format **<text>**, Also resolve overlapping and adjacent highlights into a single highlight. For example, in the example above,
+
+OUTPUT:
+[
+	{
+		"matching_rule_ids": ["apple_rule"],
+		"highlights": "Quarterly results were announced by **Apple computers** and it had nothing special"
+	},
+	{
+		"matching_rule_ids": ["nothing_rule"],
+		"highlights": "We found nothing wrong with the **nothing ear** 1"
+	},
+		{
+		"matching_rule_ids": ["apple_rule", "nothing_rule"],
+		"highlights": "iPhone from **apple computers** has had tough competition from **nothing phone**"
+	},
+]
